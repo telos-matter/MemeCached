@@ -241,7 +241,7 @@ public class MemeCached <K, V> {
     /**
      * @see #extend(K, long)
      */
-    public boolean extend0 (K key, long duration) {
+    private boolean extend0 (K key, long duration) {
         Value<V> value = getValue(key);
         if (value == null) {
             return false;
