@@ -4,4 +4,4 @@
 Reason why I'm saying probably, is because my only interaction with Memcached is while reading this [article](https://quuxplusone.github.io/blog/2022/01/06/memcached-interview/).
 I just found its concept interessting and cool, and so I made it for fun.
 
-If for some reason however you want to use it, here is a simple [example](UsageExample.java)
+For those who don't know what Memcached is, ~Memcached is~.. rather, **MemeCached** is simple a HashMap that stores key-value (non-null values only) mappings only for a set amount of time. After that time has passed those values are forgotten about and simply deleted from the map. Here is a simple [example](UsageExample.java)
