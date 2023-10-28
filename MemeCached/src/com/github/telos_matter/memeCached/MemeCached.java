@@ -3,13 +3,14 @@ package com.github.telos_matter.memeCached;
 import com.github.telos_matter.memeCached.core.Value;
 import com.github.telos_matter.memeCached.util.Numbers;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 
 /**
- * A {@link HashMap} that stores non-<code>null</code> values for a set
+ * A {@link HashMap} that stores non-null values for a set
  * amount of time, before completely forgetting about them
- * afterwards
+ * afterwards. When their time comes
+ * it just deletes their mapping as if it never existed before..
  */
 public class MemeCached <K, V> {
 
@@ -89,10 +90,57 @@ public class MemeCached <K, V> {
     }
 
     /**
+     * Rechecks all the values if any of them is dead in
+     * order to remove them
+     * @return number of alive values afterward
+     */
+    private int recheckAll () {
+        int count = 0;
+        Iterator<K> it = cache.keySet().iterator();
+        while (it.hasNext()) {
+            Value<V> value = cache.get(it.next());
+            assert value != null: "Cannot be null!";
+            if (value.isAlive()) {
+                count++;
+            } else {
+                it.remove();
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @return number of the mappings
+     */
+    public int size() {
+        if (synchronous) {
+            synchronized (this) {
+                return size0();
+            }
+        } else {
+            return size0();
+        }
+    }
+    /**
+     * @see #size()
+     */
+    private int size0() {
+        return recheckAll();
+    }
+
+    /**
+     * @return if the map is empty
+     */
+    public boolean isEmpty () {
+        return size() == 0;
+    }
+
+    /**
      * Caches with the defaultLifeSpan
      * @see #cache(K, V, long)
+     * @throws NullPointerException if <code>value</code> is <code>null</code>
      */
-    public boolean cache (K key, V value) {
+    public boolean put (K key, V value) {
         return cache(key, value, defaultLifeSpan);
     }
 
@@ -112,7 +160,6 @@ public class MemeCached <K, V> {
             return cache0(key, value, lifeSpan);
         }
     }
-
     /**
      * @see #cache(K, V, long)
      */
@@ -135,7 +182,6 @@ public class MemeCached <K, V> {
             return get0(key);
         }
     }
-
     /**
      * @see #get(K)
      */
@@ -146,6 +192,36 @@ public class MemeCached <K, V> {
         } else {
             return value.get();
         }
+    }
+
+    /**
+     * @return the key set
+     */
+    public Set<K> keySet() {
+        if (synchronous) {
+            synchronized (this) {
+                return keySet0();
+            }
+        } else {
+            return keySet0();
+        }
+    }
+    /**
+     * @see #keySet()
+     */
+    private Set<K> keySet0() {
+        recheckAll();
+        return cache.keySet();
+    }
+
+    /**
+     * @return the values
+     */
+    public Collection<V> values() {
+        return keySet()
+                .stream()
+                .map(key -> cache.get(key).get())
+                .toList();
     }
 
     /**
@@ -162,7 +238,6 @@ public class MemeCached <K, V> {
             return extend0(key, duration);
         }
     }
-
     /**
      * @see #extend(K, long)
      */
@@ -194,7 +269,6 @@ public class MemeCached <K, V> {
         return getValue(key) != null;
     }
 
-
     /**
      * @return the value held by the <code>key</code>
      * before forgetting about it, or <code>null</code>
@@ -209,7 +283,6 @@ public class MemeCached <K, V> {
             return forget0(key);
         }
     }
-
     /**
      * @see #forget(K)
      */
@@ -263,7 +336,6 @@ public class MemeCached <K, V> {
             return stillAliveFor0(key);
         }
     }
-
     /**
      * @see #stillAliveFor(K)
      */
@@ -293,9 +365,37 @@ public class MemeCached <K, V> {
      * @see #forgetAll()
      */
     private int forgetAll0 () {
-        int size = cache.size();
-        cache.clear();
-        return size;
+        int count = 0;
+        Iterator<K> it = cache.keySet().iterator();
+        while (it.hasNext()) {
+            Value<V> value = cache.get(it.next());
+            assert value != null: "Cannot be null!";
+            if (value.isAlive()) {
+                value.kill();
+                count++;
+            }
+            it.remove();
+        }
+        return count;
+    }
+
+    /**
+     * @return if it contains the <code>key</code>
+     */
+    public boolean containsKey(K key) {
+        if (synchronous) {
+            synchronized (this) {
+                return containsKey0(key);
+            }
+        } else {
+            return containsKey0(key);
+        }
+    }
+    /**
+     * @see #containsKey(K)
+     */
+    private boolean containsKey0(K key) {
+        return getValue(key) != null;
     }
 
     public synchronized void setSynchronous (boolean synchronous) {
@@ -309,7 +409,7 @@ public class MemeCached <K, V> {
     /**
      * @throws IllegalArgumentException if <code>defaultLifeSpan</code> is negative
      */
-    public synchronized void setDefaultLifeSpan (long defaultLifeSpan) {
+    public synchronized void setDefaultLifeSpan (long defaultLifeSpan) { // Eh, they are synchronized just like that
         this.defaultLifeSpan = Numbers.requireNonNegative(defaultLifeSpan);
     }
 
