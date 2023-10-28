@@ -6,8 +6,8 @@ public class UsageExample {
     public static void main(String[] args) throws InterruptedException {
         MemeCached <String, Integer> cache = new MemeCached<>();
 
-        cache.cache("first", 1, 1);
-        cache.cache("second", 2, 2);
+        cache.cache("first", 1, 1); // Save a value for 1 second
+        cache.cache("second", 2, 2); // Save another value but for 2 seconds
 
         System.out.println(cache.size()); // 2, all values are still alive
         Thread.sleep(1000);
