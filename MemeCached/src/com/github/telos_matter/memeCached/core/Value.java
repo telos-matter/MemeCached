@@ -93,6 +93,26 @@ public class Value <V> {
     }
 
     /**
+     * Extends the life span (extending it or shorting it)
+     * so that this value is only alive for how much ever
+     * is specified in <code>lifeSpan</code>
+     * @param lifeSpan the "new" life span in seconds
+     * @return <code>true</code> if this value is alive
+     * and its life span has been updated. Otherwise <code>false</code>
+     * @throws IllegalArgumentException if <code>lifeSpan</code> is negative
+     */
+    public boolean makeRemainingLifeSpan (long lifeSpan) {
+        if (isAlive()) {
+            lifeSpan = Numbers.requireNonNegative(lifeSpan)*1_000_000_000L;
+            long age = System.nanoTime() - birth;
+            this.lifeSpan = age + lifeSpan;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @return how long is this value still alive for in seconds
      * , or <code>-1</code> if its already dead
      */

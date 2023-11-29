@@ -251,6 +251,37 @@ public class MemeCached <K, V> {
     }
 
     /**
+     * Extends the life span (extending it or shorting it)
+     * so that the value is only alive for how much ever
+     * is specified in <code>lifeSpan</code>
+     * @param lifeSpan the "new" life span in seconds
+     * @return <code>true</code> if the value is alive
+     * and its life span has been updated. Otherwise <code>false</code>
+     * @throws IllegalArgumentException if <code>lifeSpan</code> is negative
+     */
+    public boolean makeRemainingLifeSpan (K key, long lifeSpan) {
+        if (synchronous) {
+            synchronized (this) {
+                return makeRemainingLifeSpan0(key, lifeSpan);
+            }
+        } else {
+            return makeRemainingLifeSpan0(key, lifeSpan);
+        }
+    }
+
+    /**
+     * @see #makeRemainingLifeSpan(K, long)
+     */
+    private boolean makeRemainingLifeSpan0 (K key, long lifeSpan) {
+        Value<V> value = getValue(key);
+        if (value == null) {
+            return false;
+        } else {
+            return value.makeRemainingLifeSpan(lifeSpan);
+        }
+    }
+
+    /**
      * @return whether the value is still alive or not
      */
     public boolean isAlive (K key) {
