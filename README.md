@@ -1,4 +1,4 @@
-# MemeCached &nbsp; ![DEVELOPMENT STATUS: version 0.3](https://badgen.net/badge/DEVELOPMENT%20STATUS/version%200.3/green)
+# MemeCached &nbsp; ![DEVELOPMENT STATUS: version 0.4](https://badgen.net/badge/DEVELOPMENT%20STATUS/version%200.4/green)
 ## A replica of [Memcached](https://memcached.org/) in Java but alot worse probably
 
 Reason why I'm saying probably, is because my only interaction with Memcached is while reading this [article](https://quuxplusone.github.io/blog/2022/01/06/memcached-interview/).
