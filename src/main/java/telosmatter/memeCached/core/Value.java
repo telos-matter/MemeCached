@@ -82,7 +82,7 @@ public class Value <V> {
     public long age () {
         assertNotTerminated();
         // Get the age in nanoseconds
-        long age = System.nanoTime() - birth;
+        final long age = System.nanoTime() - birth;
         // Return rounded version
         return Math.round(age / 1_000_000_000D);
     }
@@ -108,6 +108,7 @@ public class Value <V> {
 
     /**
      * Commit Seppuku.
+     * Called by MemeCached.
      */
     public void kys () {
         value = null;
@@ -138,7 +139,7 @@ public class Value <V> {
 
     /**
      * Update the lifespan by extending it or shorting it
-     * so that this value is can only be alive for how much ever
+     * so that this <code>value</code> can only be alive for how much ever
      * is specified in <code>newLifeSpan</code>
      * @param newLifeSpan the "new" lifespan in seconds. Can <b>not</b> be negative
      */
@@ -168,6 +169,7 @@ public class Value <V> {
      * @return the callback
      */
     public Callback<V> getCallback () {
+        assertNotTerminated();
         return this.callback;
     }
 
