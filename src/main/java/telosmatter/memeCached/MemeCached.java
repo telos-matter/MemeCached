@@ -120,6 +120,19 @@ public class MemeCached <K, V> {
     }
 
     /**
+     * Creates an instance with this configuration:
+     * <ul>
+     *     <li>{@link #defaultLifeSpan} set to {@link #_15_MINUTES}</li>
+     *     <li>{@link #defaultCallback} set to <code>null</code></li>
+     *     <li>{@link #synchronous} set to the given value</li>
+     * </ul>
+     * @see #MemeCached(long, Callback, boolean)
+     */
+    public MemeCached (boolean synchronous) {
+        this(_15_MINUTES, null, synchronous);
+    }
+
+    /**
      * Creates an instance with the given configuration
      * @param defaultLifeSpan to give to cached values. In seconds
      * @param defaultCallback to set to cached values
@@ -247,6 +260,9 @@ public class MemeCached <K, V> {
     public boolean put (K key, V value) {
         return cache(key, value, defaultLifeSpan, defaultCallback);
     }
+
+    // TODO add another cache method with no call back
+    // TODO add get or default
 
     /**
      * Cache the given value with the given options
