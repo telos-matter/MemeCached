@@ -4,7 +4,7 @@
 My only interaction with Memcached is while reading this [article](https://quuxplusone.github.io/blog/2022/01/06/memcached-interview/). So not much experience with it.
 I just found its concept interesting and cool, and so I made it for fun.
 
-For those who don't know what Memcached is, ~Memcached is~.. rather, **MemeCached** is simply a HashMap that stores key-value, **non-null values only**, mappings but only for a set amount of time. After that time has passed those values are forgotten about and simply deleted from the map. There is possibility to define a callback that will get called when a value is forgotten about.
+For those who don't know what Memcached is, ~Memcached is~.. rather, **MemeCached** is simply a HashMap that stores key-value mappings but only for a set amount of time. After that time has passed those values are forgotten about and simply deleted from the map. There is possibility to define a callback that will get called when a value is forgotten about.
 
 ## Examples:
 Check out the tests for examples on how to use it.
