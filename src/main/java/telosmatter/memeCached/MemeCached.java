@@ -253,8 +253,6 @@ public class MemeCached <K, V> {
         return cache(key, value, lifeSpan, defaultCallback);
     }
 
-    // TODO add get or default
-
     /**
      * Cache the given value with the given options
      *
@@ -294,6 +292,15 @@ public class MemeCached <K, V> {
             // Otherwise return the actual value
             return value.get();
         }
+    }
+
+    /**
+     * @return the value mapped with the given <code>key</code>
+     * or <code>defaultValue</code> if the mapping doesn't exist.
+     */
+    public V get (K key, V defaultValue) {
+        V value = get(key);
+        return (value != null)? value : defaultValue;
     }
 
     /**
