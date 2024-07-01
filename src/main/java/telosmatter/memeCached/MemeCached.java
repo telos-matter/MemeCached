@@ -239,7 +239,20 @@ public class MemeCached <K, V> {
         return cache(key, value, defaultLifeSpan, defaultCallback);
     }
 
-    // TODO add another cache method with no call back
+    /**
+     * Cache the given value with the given options
+     *
+     * @param key for the value
+     * @param value to cache
+     * @param lifeSpan in seconds of how long should the value be remembered for
+     * @see #cache(Object, Object, long, Callback)
+     * @throws NullPointerException if <code>value</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>lifeSpan</code> is negative
+     */
+    public boolean cache (K key, V value, long lifeSpan) {
+        return cache(key, value, lifeSpan, defaultCallback);
+    }
+
     // TODO add get or default
 
     /**
