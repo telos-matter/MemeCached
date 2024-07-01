@@ -1,10 +1,10 @@
-package memeCached.core;
+package telosmatter.memeCached.core;
 
-import memeCached.util.Numbers;
+import telosmatter.memeCached.MemeCached;
 
 /**
  * Groups information about a value of type <code>V</code>, and
- * eases the work for {@link memeCached.MemeCached} a bit.
+ * eases the work for {@link MemeCached} a bit.
  * <br>
  * The end-user is never going to interact directly with this
  * class. It is managed by MemeCached.

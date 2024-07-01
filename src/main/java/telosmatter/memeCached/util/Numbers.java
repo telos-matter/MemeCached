@@ -1,4 +1,4 @@
-package memeCached.util;
+package telosmatter.memeCached.util;
 
 /**
  * A utility class for Numbers

@@ -1,12 +1,10 @@
-package memeCached;
+package telosmatter.memeCached;
 
-import memeCached.core.Callback;
-import memeCached.core.Value;
-import memeCached.util.Numbers;
+import telosmatter.memeCached.core.Callback;
+import telosmatter.memeCached.core.Value;
+import telosmatter.memeCached.util.Numbers;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 /**
  * A map that uses an underlying {@link HashMap} to stores
@@ -39,6 +37,7 @@ import java.util.stream.Collectors;
  * @see Callback
  */
 public class MemeCached <K, V> {
+
 
     /**
      * 1 minute in seconds

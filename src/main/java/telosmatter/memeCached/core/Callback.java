@@ -1,6 +1,6 @@
-package memeCached.core;
+package telosmatter.memeCached.core;
 
-import memeCached.MemeCached;
+import telosmatter.memeCached.MemeCached;
 
 /**
  * A Functional Interface to define a callback function
