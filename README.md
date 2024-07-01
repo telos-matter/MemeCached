@@ -7,7 +7,7 @@ I just found its concept interesting and cool, and so I made it for fun.
 For those who don't know what Memcached is, ~Memcached is~.. rather, **MemeCached** is simply a HashMap that stores key-value mappings but only for a set amount of time. After that time has passed those values are forgotten about and simply deleted from the map. There is possibility to define a callback that will get called when a value is forgotten about.
 
 ## Examples:
-Check out the tests for examples on how to use it.
+Check out the [tests](src/test/java/MemeCachedTest.java#L11) for examples on how to use it.
 
 
 ## Installation:
