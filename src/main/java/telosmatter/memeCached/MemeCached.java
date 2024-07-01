@@ -231,11 +231,20 @@ public class MemeCached <K, V> {
     }
 
     /**
-     * Caches the given value with the default configuration
+     * Caches the given value with the default configuration.
      * @see #cache(Object, Object, long, Callback)
      * @throws NullPointerException if <code>value</code> is <code>null</code>
      */
     public boolean put (K key, V value) {
+        return cache(key, value);
+    }
+
+    /**
+     * Cache the given value with the default configuration.
+     * @see #cache(Object, Object, long, Callback)
+     * @throws NullPointerException if <code>value</code> is <code>null</code>
+     */
+    public boolean cache (K key, V value) {
         return cache(key, value, defaultLifeSpan, defaultCallback);
     }
 
