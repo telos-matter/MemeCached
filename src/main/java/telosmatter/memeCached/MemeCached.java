@@ -5,6 +5,7 @@ import telosmatter.memeCached.core.Value;
 import telosmatter.memeCached.util.Numbers;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A map that uses an underlying {@link HashMap} to stores
@@ -84,21 +85,6 @@ public class MemeCached <K, V> {
     /**
      * Is access to this map and should the actions
      * preformed on it be synchronous?
-     * <hr>
-     * The way synchronisation is implemented
-     * is that any method that can be called
-     * by the user first checks if this flag
-     * is set, if so it locks on <code>this</code>
-     * and calls
-     * the actual method that does
-     * the job. Otherwise, it simply calls it.
-     * <br>
-     * And so most methods that can be called by
-     * the user have two versions, the first one which
-     * is the one exposed to the user checks
-     * and performs the synchronous-ness, and
-     * the second one which is hidden actually
-     * implements the method.
      */
     private final boolean synchronous;
     /**
@@ -135,7 +121,7 @@ public class MemeCached <K, V> {
     /**
      * Creates an instance with the given configuration
      * @param defaultLifeSpan to give to cached values. In seconds
-     * @param defaultCallback to set to cached values
+     * @param defaultCallback to set to the cached values
      * @param synchronous if actions on this map should be preformed synchronously
      * @throws IllegalArgumentException if <code>defaultLifeSpan</code> is negative
      */
@@ -143,7 +129,11 @@ public class MemeCached <K, V> {
         this.defaultLifeSpan = Numbers.requireNonNegative(defaultLifeSpan);
         this.defaultCallback = defaultCallback;
         this.synchronous = synchronous;
-        this.cache = new HashMap<>();
+        if (synchronous) {
+            this.cache = new ConcurrentHashMap<>();
+        } else {
+            this.cache = new HashMap<>();
+        }
     }
 
     /**
@@ -230,18 +220,6 @@ public class MemeCached <K, V> {
      * @return the number of mappings
      */
     public int size() {
-        if (synchronous) {
-            synchronized (this) {
-                return size0();
-            }
-        } else {
-            return size0();
-        }
-    }
-    /**
-     * Actual implementation of {@link #size()}
-     */
-    private int size0() {
         return recheckAll();
     }
 
@@ -277,18 +255,6 @@ public class MemeCached <K, V> {
      * @throws IllegalArgumentException if <code>lifeSpan</code> is negative
      */
     public boolean cache (K key, V value, long lifeSpan, Callback <V> callback) {
-        if (synchronous) {
-            synchronized (this) {
-                return cache0(key, value, lifeSpan, callback);
-            }
-        } else {
-            return cache0(key, value, lifeSpan, callback);
-        }
-    }
-    /**
-     * Actual implementation of {@link #cache(Object, Object, long, Callback)}
-     */
-    private boolean cache0 (K key, V value, long lifeSpan, Callback <V> callback) {
         // Check arguments
         Objects.requireNonNull(value);
         Numbers.requireNonNegative(lifeSpan);
@@ -305,18 +271,6 @@ public class MemeCached <K, V> {
      * or <code>null</code> if it doesn't exist.
      */
     public V get (K key) {
-        if (synchronous) {
-            synchronized (this) {
-                return get0(key);
-            }
-        } else {
-            return get0(key);
-        }
-    }
-    /**
-     * The actual implementation of {@link #get(Object)}
-     */
-    private V get0 (K key) {
         // Get the value object
         Value<V> value = getValue(key);
         // If it's null
@@ -333,18 +287,6 @@ public class MemeCached <K, V> {
      * @return the key set
      */
     public Set<K> keySet() {
-        if (synchronous) {
-            synchronized (this) {
-                return keySet0();
-            }
-        } else {
-            return keySet0();
-        }
-    }
-    /**
-     * The actual implementation of {@link #keySet()}
-     */
-    private Set<K> keySet0() {
         // Recheck all to update
         recheckAll();
         // Simply return the key set from the underlying map
@@ -355,18 +297,6 @@ public class MemeCached <K, V> {
      * @return the values
      */
     public Collection<V> values() {
-        if (synchronous) {
-            synchronized (this) {
-                return values0();
-            }
-        } else {
-            return values0();
-        }
-    }
-    /**
-     * The actual implementation of {@link #values()}
-     */
-    private Collection<V> values0 () {
         // Recheck all to update
         recheckAll();
         // Get the actual values from the values
@@ -384,18 +314,6 @@ public class MemeCached <K, V> {
      * has been extended, otherwise <code>false</code>
      */
     public boolean extend (K key, long duration) {
-        if (synchronous) {
-            synchronized (this) {
-                return extend0(key, duration);
-            }
-        } else {
-            return extend0(key, duration);
-        }
-    }
-    /**
-     * Actual implementation of {@link #extend(Object, long)}
-     */
-    private boolean extend0 (K key, long duration) {
         // Get the value
         Value<V> value = getValue(key);
         // If it doesn't exist
@@ -421,18 +339,6 @@ public class MemeCached <K, V> {
      * @throws IllegalArgumentException if <code>lifeSpan</code> is negative
      */
     public boolean makeRemainingLifeSpan (K key, long lifeSpan) {
-        if (synchronous) {
-            synchronized (this) {
-                return makeRemainingLifeSpan0(key, lifeSpan);
-            }
-        } else {
-            return makeRemainingLifeSpan0(key, lifeSpan);
-        }
-    }
-    /**
-     * The actual implementation of {@link #makeRemainingLifeSpan(Object, long)}
-     */
-    private boolean makeRemainingLifeSpan0 (K key, long lifeSpan) {
         // Get the value
         Value<V> value = getValue(key);
         // Check if it exists
@@ -460,18 +366,6 @@ public class MemeCached <K, V> {
      * @return whether the mapping is still alive or not
      */
     public boolean isAlive (K key) {
-        if (synchronous) {
-            synchronized (this) {
-                return isAlive0(key);
-            }
-        } else {
-            return isAlive0(key);
-        }
-    }
-    /**
-     * Actual implementation of {@link #isAlive(Object)}
-     */
-    private boolean isAlive0 (K key) {
         return getValue(key) != null;
     }
 
@@ -492,18 +386,6 @@ public class MemeCached <K, V> {
      * if it doesn't exist.
      */
     public V forgor (K key) {
-        if (synchronous) {
-            synchronized (this) {
-                return forgor0(key);
-            }
-        } else {
-            return forgor0(key);
-        }
-    }
-    /**
-     * The actual implementation of {@link #forgor(Object)}
-     */
-    private V forgor0 (K key) {
         // Retrieve the value
         Value<V> value = getValue(key);
         // If it doesn't exist
@@ -530,18 +412,6 @@ public class MemeCached <K, V> {
      * @throws NullPointerException if <code>newValue</code> is <code>null</code>
      */
     public boolean update (K key, V newValue) {
-        if (synchronous) {
-            synchronized (this) {
-                return update0(key, newValue);
-            }
-        } else {
-            return update0(key, newValue);
-        }
-    }
-    /**
-     * The actual implementation of {@link #update(K, V)}
-     */
-    private boolean update0 (K key, V newValue) {
         // Check for null
         Objects.requireNonNull(newValue);
         // Get the value
@@ -564,19 +434,6 @@ public class MemeCached <K, V> {
      * Or <code>-1</code> if it doesn't exist
      */
     public long stillAliveFor (K key) {
-        if (synchronous) {
-            synchronized (this) {
-                return stillAliveFor0(key);
-            }
-        } else {
-            return stillAliveFor0(key);
-        }
-    }
-    /**
-     * The actual implementation of {@link #stillAliveFor(Object)}
-     * @see #stillAliveFor(K)
-     */
-    private long stillAliveFor0 (K key) {
         // Get the value
         Value<V> value = getValue(key);
         // Check if it exists
@@ -603,18 +460,6 @@ public class MemeCached <K, V> {
      * @return how many mapping it held
      */
     public int forgetAll () {
-        if (synchronous) {
-            synchronized (this) {
-                return forgetAll0();
-            }
-        } else {
-            return forgetAll0();
-        }
-    }
-    /**
-     * The actual implementation of {@link #forgetAll()}
-     */
-    private int forgetAll0 () {
         // Initialize the count
         int count = 0;
         // Get an iterator
@@ -641,18 +486,6 @@ public class MemeCached <K, V> {
      * @return whether it contains the <code>key</code>
      */
     public boolean containsKey(K key) {
-        if (synchronous) {
-            synchronized (this) {
-                return containsKey0(key);
-            }
-        } else {
-            return containsKey0(key);
-        }
-    }
-    /**
-     * The actual implementation of {@link #containsKey(Object)}
-     */
-    private boolean containsKey0(K key) {
         // Simply check if the value exists
         return getValue(key) != null;
     }
@@ -661,68 +494,36 @@ public class MemeCached <K, V> {
      * @throws IllegalArgumentException if <code>defaultLifeSpan</code> is negative
      */
     public void setDefaultLifeSpan (long defaultLifeSpan) {
+        defaultLifeSpan = Numbers.requireNonNegative(defaultLifeSpan);
         if (synchronous) {
             synchronized (this) {
-                setDefaultLifeSpan0(defaultLifeSpan);
+                this.defaultLifeSpan = defaultLifeSpan;
             }
         } else {
-            setDefaultLifeSpan0(defaultLifeSpan);
+            this.defaultLifeSpan = defaultLifeSpan;
         }
-    }
-    /**
-     * The actual implementation of {@link #setDefaultLifeSpan(long)}
-     */
-    private void setDefaultLifeSpan0(long defaultLifeSpan) {
-        this.defaultLifeSpan = Numbers.requireNonNegative(defaultLifeSpan);
     }
 
     public long getDefaultLifeSpan() {
-        if (synchronous) {
-            synchronized (this) {
-                return getDefaultLifeSpan0();
-            }
-        } else {
-            return getDefaultLifeSpan0();
-        }
-    }
-
-    /**
-     * The actual implementation of {@link #getDefaultLifeSpan()}
-     */
-    private long getDefaultLifeSpan0() {
         return this.defaultLifeSpan;
     }
 
     public void setDefaultCallback (Callback <V> defaultCallback) {
         if (synchronous) {
             synchronized (this) {
-                setDefaultCallback0(defaultCallback);
+                this.defaultCallback = defaultCallback;
             }
         } else {
-            setDefaultCallback0(defaultCallback);
+            this.defaultCallback = defaultCallback;
         }
-    }
-    /**
-     * The actual implementation of {@link #setDefaultCallback(Callback)} ()}
-     */
-    private void setDefaultCallback0(Callback <V> defaultCallback) {
-        this.defaultCallback = defaultCallback;
     }
 
     public Callback <V> getDefaultCallback () {
-        if (synchronous) {
-            synchronized (this) {
-                return getDefaultCallback0();
-            }
-        } else {
-            return getDefaultCallback0();
-        }
-    }
-    /**
-     * The actual implementation of {@link #getDefaultCallback()} ()}
-     */
-    private Callback <V> getDefaultCallback0() {
         return this.defaultCallback;
+    }
+
+    public boolean isSynchronous () {
+        return synchronous;
     }
 
 }
